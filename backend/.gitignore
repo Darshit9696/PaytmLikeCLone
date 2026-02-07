@@ -1,1 +1,8 @@
-node_modules
+# node dependencies
+node_modules/
+
+# environment variables
+.env
+
+# config file containing secrets
+config/config.js
