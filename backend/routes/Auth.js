@@ -1,4 +1,4 @@
-const { JWT_SECRET } = require("../config/congif");
+const JWT_SECRET = process.env.JWT_SECRET;
 const jwt = require("jsonwebtoken");
 
 const authMiddleWare = (req,res,next) => {
