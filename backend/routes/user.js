@@ -96,6 +96,49 @@ router.put("/update",authMiddleWare,async(req,res) => {
     res.json({
         message : "Updated succesfully"
     })
+});
+
+router.get('/bulk',async (req,res) => {
+
+  try {
+    const filter = req.body.filter;
+
+    const users = await User.find({
+      $or : [
+        {
+          firstName : {
+            $regex: filter,
+            $options: "i" // case insensitive search
+          }
+        },{
+
+          lastName : {
+            $regex : filter,
+            $options : "i"
+          }
+        }
+      ]
+
+    });
+      // send only required fields
+      res.json({
+        users: users.map(user => ({
+          username: user.username,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          _id: user._id
+        }))
+      });
+  }catch(err)
+  {
+    return res.status(403).json({
+      msg : "Something is wrong"
+    })
+  }
+
+  
+
+
 
 })
 
