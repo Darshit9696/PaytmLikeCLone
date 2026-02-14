@@ -1,5 +1,5 @@
 const express = require("express");
-const { User } = require("../db");
+const { User,Account } = require("../db");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
 const zod = require("zod");
@@ -23,7 +23,7 @@ router.post("/sign-up", async (req, res) => {
   if(!success)
   {
     return res.json({
-        msg : "Email id already taken / Incorrect Inputs"
+        msg : "Incorrect Inputs"
     })
   }
 
@@ -35,12 +35,18 @@ router.post("/sign-up", async (req, res) => {
     });
   }
 
-  await User.create({
+  const user = await User.create({
     username,
     password,
     firstName,
     lastName
   });
+
+  // create account with random balance
+  await Account.create({
+    userId: user._id,
+    balance: Math.floor(Math.random() * 10000) + 1
+});
 
   res.json({
     firstName,
@@ -85,7 +91,7 @@ router.put("/update",authMiddleWare,async(req,res) => {
     const { success } = updateBody.safeParse(req.body);
     if(!success)  
     {
-        return res.status(403).json({msg : " Error while updating information "})
+      return res.status(403).json({msg : " Error while updating information "})
     }
 
     await User.updateOne(
@@ -101,7 +107,7 @@ router.put("/update",authMiddleWare,async(req,res) => {
 router.get('/bulk',async (req,res) => {
 
   try {
-    const filter = req.body.filter;
+    const filter = req.query.filter;
 
     const users = await User.find({
       $or : [
@@ -135,10 +141,6 @@ router.get('/bulk',async (req,res) => {
       msg : "Something is wrong"
     })
   }
-
-  
-
-
 
 })
 
